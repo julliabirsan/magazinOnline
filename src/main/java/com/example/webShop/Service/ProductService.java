@@ -30,4 +30,8 @@ public class ProductService {
         productDao.deleteById(id);
         return "produsul cu id-ul = " + id + " a fost sters";
     }
+
+    public Product getProductById(int id){
+       return productDao.findById(id).get();
+    }
 }

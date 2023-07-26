@@ -5,6 +5,7 @@ import com.example.webShop.Service.UserService;
 import com.example.webShop.database.*;
 import com.example.webShop.Service.UserException;
 import com.example.webShop.security.UserSession;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
@@ -29,6 +30,9 @@ public class UserController {
 
     @Autowired
     OrderLinesDao orderLinesDao;
+
+    @Autowired
+            OrderDao orderDao;
 
     int items = 0;
 
@@ -180,6 +184,7 @@ public class UserController {
         ModelAndView modelAndView = new ModelAndView("orderSuccess");
 
         List<Product> produseBD = productService.findAllProducts();
+        Order order = new Order();
         for(int idProdusCos : userSession.getCart().keySet()){
             for (Product product:produseBD){
                 if (product.getId() == idProdusCos){
@@ -187,8 +192,8 @@ public class UserController {
                     orderLines.setProductId(idProdusCos); //id produs
                     orderLines.setQuantity(userSession.getCart().get(idProdusCos)); //cantitate din cos
                     orderLines.setTotalPrice(userSession.getCart().get(idProdusCos)*product.getPrice()); //pret total per tip produs
-                    Order order = new Order();
-                    order.setUser_id(userSession.getId());
+
+                    order.setUserid(userSession.getId());
                     order.setAddress("strada cu flori");
                     orderLines.setOrder(order);
                     orderLinesDao.save(orderLines);
@@ -196,6 +201,40 @@ public class UserController {
             }
             }
         userSession.getCart().clear();
+        return modelAndView;
+    }
+
+    @GetMapping("/history")
+    public ModelAndView orderHistory(){
+        ModelAndView modelAndView = new ModelAndView("history");
+
+        if (userSession.getId()<=0){
+            return new ModelAndView("index");
+        }
+
+        List<Order> orders = orderDao.findAllByUserid(userSession.getId());
+
+        modelAndView.addObject("orders", orders);
+
+        return modelAndView;
+    }
+
+    @GetMapping("/orderDetails")
+    public ModelAndView orderDetails(@RequestParam("orderId") int orderId){
+
+        ModelAndView modelAndView = new ModelAndView("orderDetails");
+
+        List<OrderDetails> orderLines = new ArrayList<>();
+        for (OrderLines orderLines1:orderLinesDao.findAll()){
+            if (orderLines1.getOrder().getId() ==  orderId){
+                OrderDetails orderDetails = new OrderDetails();
+                orderDetails.setName(productService.getProductById(orderLines1.getProductId()).getName());
+                orderDetails.setQuantity(orderLines1.getQuantity());
+                orderDetails.setTotalPrice(orderLines1.getTotalPrice());
+                orderLines.add(orderDetails);
+            }
+        }
+        modelAndView.addObject("orders", orderLines);
         return modelAndView;
     }
 
