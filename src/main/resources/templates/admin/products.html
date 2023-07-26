@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="/magic.min.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <style>
+        .magictime{
+            -webkit-animation-duration:2s;
+            animation-duration:2s;
+        }
+    </style>
+
+    <script>
+        function toggleFormAdd(){
+            $("#form-add").toggle();
+        }
+        function deleteResultMessage(){
+            $("#result-message").addClass("magictime puffOff");
+        }
+        function sendAndSaveProductRequest(){
+            var nameProduct=$("#nameProduct").val();
+            var categoryProduct=$("#categoryProduct").val();
+            var price = $("#priceProduct").val();
+            var quantity = $("#quantityProduct").val();
+            var url = "http://localhost:8080/admin/products?name="+nameProduct+
+            "&category="+categoryProduct+"&price="+price+"&quantity="+quantity;
+            $.post(url, function(data){
+                $("#result-message").html(data);
+                $("#result-message").removeClass("magictime puffOff");
+                $("#result-message").show();
+                setTimeout(deleteResultMessage, 2000);
+                $("#form-add").toggle();
+
+            }).done(function(response){
+                setTimeout(function(){
+                    location.reload();
+                }, 2000);
+            });
+        }
+
+        function deleteProduct(productId){
+            $.ajax({ url:"/admin/products/"+productId,
+                    type:"delete"});
+            //stergem din interfata
+            $("#"+productId).parent().parent().remove();
+            $("#result-message").html("produsul a fost sters");
+            $("#result-message").removeClass("magictime puffOut");
+            $("#result-message").show();
+            setTimeout(deleteResultMessage, 2000);
+        }
+
+
+    </script>
+
+</head>
+<body>
+<div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
+    <h5 class="my-0 mr-md-auto font-weight-normal">Company name</h5>
+    <nav class="my-2 my-md-0 mr-md-3">
+        <a class="p-2 text-dark" href="#">Features</a>
+        <a class="p-2 text-dark" href="#">Enterprise</a>
+        <a class="p-2 text-dark" href="#">Support</a>
+        <a class="p-2 text-dark" href="#">Pricing</a>
+    </nav>
+    <a class="btn btn-outline-primary" href="#">Sign up</a>
+</div>
+
+<div class="shop-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center" style="max-width: 700px;">
+    <h1 class="display-4">Administrare produse</h1>
+</div>
+
+<div class="container" style="max-width: 960px;">
+
+    <div class="alert alert-primary" role="alert" id="result-message" style="display: none">
+
+    </div>
+</div>
+
+<button type="button" class="btn btn-info" onclick="toggleFormAdd();"> Adauga produs</button>
+<form id="form-add" style="display:none">
+    <div class="form-group">
+        <label for="nameProduct">Nume produs</label>
+        <input type ="text" class="form-control" id="nameProduct">
+    </div>
+    <div class="form-group">
+        <label for="categoryProduct">Categorie produs</label>
+        <input type ="text" class="form-control" id="categoryProduct">
+    </div>
+    <div class="form-group">
+        <label for="priceProduct">Pret produs</label>
+        <input type ="number" class="form-control" id="priceProduct">
+    </div>
+    <div class="form-group">
+        <label for="quantityProduct">Canitate produs</label>
+        <input type ="number" class="form-control" id="quantityProduct">
+    </div>
+    <button type="button" class="btn btn-info" onclick="sendAndSaveProductRequest();">Salveaza</button>
+</form>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th scope="col">id</th>
+            <th scope="col">nume produs</th>
+            <th scope="col">categorie</th>
+            <th scope="col">pret</th>
+            <th scope="col">cantitate</th>
+            <th scope="col">actiuni</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="p:${products}">
+            <td th:text="${p.id}"></td>
+            <td th:text="${p.name}"></td>
+            <td th:text="${p.category}"></td>
+            <td th:text="${p.price}"></td>
+            <td th:text="${p.quantity}"></td>
+            <td>
+                <button type="submit" th:id="${p.id}" onclick="deleteProduct(this.id);"
+                        class="btn btn-outline-danger">Stergere</button>
+            </td>
+        </tr>
+    </tbody>
+
+</table>
+
+</body>
+</html>
