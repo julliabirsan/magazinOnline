@@ -27,9 +27,10 @@ public class AdminController {
     public String addProduct(@RequestParam("name") String name,
                              @RequestParam("category") String category,
                              @RequestParam("price") Double price,
-                             @RequestParam("quantity") Integer quantity
+                             @RequestParam("quantity") Integer quantity,
+                             @RequestParam("imgSrc") String imgSrc
                              ){
-      return productService.addProduct(name, category, price, quantity);
+      return productService.addProduct(name, category, price, quantity, imgSrc);
     }
 
     @DeleteMapping("/admin/products/{id}")

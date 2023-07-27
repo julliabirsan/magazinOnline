@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<p>ISTORIC COMENZI</p>
+
+<table>
+    <tr>
+        <th>id</th>
+        <th>address</th>
+        <th>user id</th>
+    </tr>
+    <tr th:each="order:${orders}">
+        <td th:text="${order.id}"></td>
+        <td th:text="${order.address}"></td>
+        <td th:text="${order.userId}"></td>
+        <td>
+            <form action="/orderDetails">
+                <input name="orderId" hidden th:value="${order.id}">
+                <button type="submit" class="btn btn-lg btn-block btn-primary">Detalii</button>
+            </form>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

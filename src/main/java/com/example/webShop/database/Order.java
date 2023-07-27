@@ -9,7 +9,7 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String address;
-    private int user_id;
+    private int userId;
 
     public int getId() {
         return id;
@@ -27,11 +27,11 @@ public class Order {
         this.address = address;
     }
 
-    public int getUser_id() {
-        return user_id;
+    public int getUserId() {
+        return userId;
     }
 
-    public void setUser_id(int user_id) {
-        this.user_id = user_id;
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 }

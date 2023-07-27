@@ -1,5 +1,6 @@
 package com.example.webShop.Controller;
 
+import com.example.webShop.Service.OrderService;
 import com.example.webShop.Service.ProductService;
 import com.example.webShop.Service.UserService;
 import com.example.webShop.database.*;
@@ -8,6 +9,7 @@ import com.example.webShop.security.UserSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,6 +31,9 @@ public class UserController {
 
     @Autowired
     OrderLinesDao orderLinesDao;
+
+    @Autowired
+    OrderService orderService;
 
     int items = 0;
 
@@ -180,6 +185,8 @@ public class UserController {
         ModelAndView modelAndView = new ModelAndView("orderSuccess");
 
         List<Product> produseBD = productService.findAllProducts();
+        Order order = new Order();
+
         for(int idProdusCos : userSession.getCart().keySet()){
             for (Product product:produseBD){
                 if (product.getId() == idProdusCos){
@@ -187,8 +194,7 @@ public class UserController {
                     orderLines.setProductId(idProdusCos); //id produs
                     orderLines.setQuantity(userSession.getCart().get(idProdusCos)); //cantitate din cos
                     orderLines.setTotalPrice(userSession.getCart().get(idProdusCos)*product.getPrice()); //pret total per tip produs
-                    Order order = new Order();
-                    order.setUser_id(userSession.getId());
+                    order.setUserId(userSession.getId());
                     order.setAddress("strada cu flori");
                     orderLines.setOrder(order);
                     orderLinesDao.save(orderLines);
@@ -196,6 +202,48 @@ public class UserController {
             }
             }
         userSession.getCart().clear();
+        return modelAndView;
+    }
+
+    @GetMapping("/details")
+    public ModelAndView getProductDetails(@RequestParam("productId") int productId){
+        ModelAndView modelAndView = new ModelAndView("productDetails");
+        if (userSession.getId()<=0){
+            return new ModelAndView("index");
+        }
+        Product p = productService.getProductDetailsById(productId);
+        modelAndView.addObject("p", p);
+        return modelAndView;
+    }
+
+    @GetMapping("/history")
+    public ModelAndView showOrderHistory(){
+        ModelAndView modelAndView = new ModelAndView("orderHistory");
+        List<Order> orders = orderService.getOrdersByUserId(userSession.getId());
+        modelAndView.addObject("orders", orders);
+        return  modelAndView;
+    }
+
+    @GetMapping("/orderDetails")
+    public ModelAndView showOrderDetails(@RequestParam("orderId") int orderId){
+        ModelAndView modelAndView = new ModelAndView("orderDetails");
+
+        Iterable<OrderLines> orderLines = orderLinesDao.findAll();
+        List<OrderDetails> orderDetailsPerUser = new ArrayList<>();
+
+        for (OrderLines orderLinesDetails :  orderLines){
+            if (orderLinesDetails.getOrder().getId() == orderId){
+                Product product = productService.getProductDetailsById(orderLinesDetails.getProductId());
+                OrderDetails orderDetails = new OrderDetails();
+                orderDetails.setProductName(product.getName());
+                orderDetails.setPricePerUnit(product.getPrice());
+                orderDetails.setQuantity(orderLinesDetails.getQuantity());
+                orderDetails.setTotalPrice(orderLinesDetails.getTotalPrice());
+                orderDetails.setCategory(product.getCategory());
+                orderDetailsPerUser.add(orderDetails);
+            }
+        }
+        modelAndView.addObject("orderLines", orderDetailsPerUser);
         return modelAndView;
     }
 

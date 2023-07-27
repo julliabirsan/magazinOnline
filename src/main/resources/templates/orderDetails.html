@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<p> DETALII COMANDA</p>
+
+<table>
+    <tr>
+        <th>nume produs</th>
+        <th>cantitate</th>
+        <th>pret total</th>
+        <th>pret per unitate</th>
+        <th>categorie produs</th>
+
+    </tr>
+    <tr th:each="p:${orderLines}">
+        <td th:text="${p.productName}"></td>
+        <td th:text="${p.quantity}"></td>
+        <td th:text="${p.totalPrice}"></td>
+        <td th:text="${p.pricePerUnit}"></td>
+        <td th:text="${p.category}"></td>
+
+    </tr>
+</table>
+
+</body>
+</html>

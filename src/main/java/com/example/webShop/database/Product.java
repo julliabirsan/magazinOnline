@@ -12,6 +12,7 @@ public class Product {
     private String category;
     private double price;
     private int quantity;
+    private String imgSrc;
 
     public int getId() {
         return id;
@@ -51,5 +52,13 @@ public class Product {
 
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    public String getImgSrc() {
+        return imgSrc;
+    }
+
+    public void setImgSrc(String imgSrc) {
+        this.imgSrc = imgSrc;
     }
 }

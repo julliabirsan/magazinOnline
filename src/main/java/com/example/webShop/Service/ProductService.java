@@ -16,12 +16,13 @@ public class ProductService {
         return (List<Product>) productDao.findAll();
     }
 
-    public String addProduct(String name, String category, Double price, Integer quantity){
+    public String addProduct(String name, String category, Double price, Integer quantity, String imgSrc){
         Product product = new Product();
         product.setName(name);
         product.setCategory(category);
         product.setPrice(price);
         product.setQuantity(quantity);
+        product.setImgSrc(imgSrc);
         productDao.save(product);
         return "produsul " + name + "a fost adaugat";
     }
@@ -30,4 +31,9 @@ public class ProductService {
         productDao.deleteById(id);
         return "produsul cu id-ul = " + id + " a fost sters";
     }
+
+    public Product getProductDetailsById(int id){
+        return productDao.findById(id).get();
+    }
+
 }
